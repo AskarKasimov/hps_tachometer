@@ -1,6 +1,6 @@
 // conf settings
 
-const int ITERATIONS_NUMBER = 15;
+const int ITERATIONS_NUMBER = 5;
 
 // main code
 
@@ -9,7 +9,8 @@ unsigned long current_time = 0;
 unsigned long one_iteration_time = 0;
 double disc_period = 0;
 double RPS = 0;
-double angular_velocity;
+double angular_velocity = 0;
+double calc_coefficient = 0;
 double approx_vel = 0;
 
 void setup() {
@@ -31,20 +32,23 @@ void on_ir_freed() {
   disc_period = one_iteration_time * ITERATIONS_NUMBER; // expected period of disc rotation in milliseconds
   disc_period /= 1000; // convert to seconds
 
-  RPS = 1 / disc_period; // RPS - Rotations Per Seconds (frequency)
+  RPS = 1 / disc_period; // RPS - Rotations Per Second (frequency)
 
   angular_velocity = 2 * 3.1415926535f * RPS; // angular velocity in radians per second
-  approx_vel = ((float)((unsigned long)(approx_vel * 1000)))/1000;
-  approx_vel *= .7;
+
+  // some calculations for alignment:
+
   angular_velocity = ((float)((unsigned long)(angular_velocity * 1000)))/1000;
   angular_velocity *= .3;
-  approx_vel += angular_velocity;
-  // approx_vel = round(0.7f*approx_vel * 100)/100 + round(0.3f*angular_velocity * 100)/100;
-  // approx_vel = ((float)((int)(0.3f*angular_velocity * 10000)))/10000 + ((float)((int)(0.7f*approx_vel * 10000)))/10000;
+
+  calc_coefficient = ((float)((unsigned long)(approx_vel * 1000)))/1000;
+  calc_coefficient *= .7;
+
+  approx_vel = calc_coefficient + angular_velocity;
 
   Serial.println(approx_vel, 10);
 }
 
 void loop() {
-  // TODO: WEB server
+  // TODO: WEB server for websockets and streaming HPS information to site
 }
